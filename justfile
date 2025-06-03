@@ -1,4 +1,5 @@
 set dotenv-load
+REPO := "ptrxyz"
 
 # Requires sudo, yq
 setup:
@@ -29,22 +30,22 @@ reset:
     docker volume rm -f chemotion_app chemotion_data chemotion_db chemotion_spectra
 
 _tag arg:
-    docker tag chemotion-build/base:${VERSION} ptrxyz/{{arg}}:base-${VERSION}
-    docker tag chemotion-build/eln:${VERSION} ptrxyz/{{arg}}:eln-${VERSION}
-    docker tag chemotion-build/db:${VERSION} ptrxyz/{{arg}}:db-${VERSION}
-    docker tag chemotion-build/converter:${VERSION} ptrxyz/{{arg}}:converter-${VERSION}
-    docker tag chemotion-build/spectra:${VERSION} ptrxyz/{{arg}}:spectra-${VERSION}
-    docker tag chemotion-build/msconvert:${VERSION} ptrxyz/{{arg}}:msconvert-${VERSION}
-    docker tag chemotion-build/ketchersvc:${VERSION} ptrxyz/{{arg}}:ketchersvc-${VERSION}
+    docker tag chemotion-build/base:${VERSION} {{REPO}}/{{arg}}:base-${VERSION}
+    docker tag chemotion-build/eln:${VERSION} {{REPO}}/{{arg}}:eln-${VERSION}
+    docker tag chemotion-build/db:${VERSION} {{REPO}}/{{arg}}:db-${VERSION}
+    docker tag chemotion-build/converter:${VERSION} {{REPO}}/{{arg}}:converter-${VERSION}
+    docker tag chemotion-build/spectra:${VERSION} {{REPO}}/{{arg}}:spectra-${VERSION}
+    docker tag chemotion-build/msconvert:${VERSION} {{REPO}}/{{arg}}:msconvert-${VERSION}
+    docker tag chemotion-build/ketchersvc:${VERSION} {{REPO}}/{{arg}}:ketchersvc-${VERSION}
 
 _push arg: _inhibit && _release
-    docker push ptrxyz/{{arg}}:base-${VERSION}
-    docker push ptrxyz/{{arg}}:eln-${VERSION}
-    docker push ptrxyz/{{arg}}:db-${VERSION}
-    docker push ptrxyz/{{arg}}:converter-${VERSION}
-    docker push ptrxyz/{{arg}}:spectra-${VERSION}
-    docker push ptrxyz/{{arg}}:msconvert-${VERSION}
-    docker push ptrxyz/{{arg}}:ketchersvc-${VERSION}
+    docker push {{REPO}}/{{arg}}:base-${VERSION}
+    docker push {{REPO}}/{{arg}}:eln-${VERSION}
+    docker push {{REPO}}/{{arg}}:db-${VERSION}
+    docker push {{REPO}}/{{arg}}:converter-${VERSION}
+    docker push {{REPO}}/{{arg}}:spectra-${VERSION}
+    docker push {{REPO}}/{{arg}}:msconvert-${VERSION}
+    docker push {{REPO}}/{{arg}}:ketchersvc-${VERSION}
 
 _publish arg:
     just _tag {{arg}}
