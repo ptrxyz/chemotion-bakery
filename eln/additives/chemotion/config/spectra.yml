@@ -1,0 +1,5 @@
+production:
+    :chemspectra:
+        :url: 'http://spectra:4000/'
+    :nmriumwrapper:
+        :url: 'https://nmrium.nmrxiv.org'

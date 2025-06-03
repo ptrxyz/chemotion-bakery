@@ -1,0 +1,12 @@
+production:
+    :url:
+    :client_id:
+    :client_secret:
+    :redirect_uri:
+    :email:
+    :backlink:
+    :publisher:
+    :resource:
+    :resourceType:
+    :softwareName:
+    :softwareVersion:

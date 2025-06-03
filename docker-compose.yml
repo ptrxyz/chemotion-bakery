@@ -1,0 +1,120 @@
+services:
+    eln:
+        image: chemotion-build/eln:${VERSION}
+        restart: unless-stopped
+        environment:
+            - CONFIG_ROLE=eln
+            - SECRET_KEY_BASE=pleasechangeme
+            - RUBYOPT=-W0
+        depends_on:
+            - db
+            - spectra
+        volumes:
+            - ./shared/pullin:/shared
+            - ./shared/backup:/backup
+            - chemotion_data:/chemotion/data/
+            - chemotion:/chemotion/app
+        ports:
+            - 4000:4000
+        networks:
+            - chemotion
+
+    worker:
+        image: chemotion-build/eln:${VERSION}
+        restart: unless-stopped
+        environment:
+            - CONFIG_ROLE=worker
+            - SECRET_KEY_BASE=pleasechangeme
+            - RUBYOPT=-W0
+        depends_on:
+            - db
+            - eln
+            - spectra
+        volumes:
+            - chemotion_data:/chemotion/data/
+            - chemotion:/chemotion/app
+        networks:
+            - chemotion
+
+    dbupgrade:
+        image: pgautoupgrade/pgautoupgrade:16-bookworm
+        container_name: dbupgrade
+        volumes:
+            - chemotion_db:/var/lib/postgresql/data/
+        restart: 'no'
+        networks:
+            - chemotion
+        environment:
+            - PGAUTO_ONESHOT=yes
+
+    db:
+        image: chemotion-build/db:${VERSION}
+        restart: unless-stopped
+        hostname: db
+        depends_on:
+            dbupgrade:
+                condition: service_completed_successfully
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+        volumes:
+            - chemotion_db:/var/lib/postgresql/data/
+        networks:
+            - chemotion
+
+    converter:
+        image: chemotion-build/converter:${VERSION}
+        restart: unless-stopped
+        environment:
+            - SECRET_KEY=imsupersecretandwanttobechanged
+        volumes:
+            - ./services/converter/profiles:/srv/chemotion/profiles
+            - ./services/converter/datasets:/srv/chemotion/datasets
+        networks:
+            - chemotion
+
+    spectra:
+        image: chemotion-build/spectra:${VERSION}
+        restart: unless-stopped
+        hostname: spectra
+        volumes:
+            - spectra:/shared:rw
+        depends_on:
+            - msconvert
+        networks:
+            - chemotion
+
+    msconvert:
+        image: chemotion-build/msconvert:${VERSION}
+        restart: unless-stopped
+        hostname: msconvert
+        volumes:
+            - spectra:/shared:rw
+        networks:
+            - chemotion
+
+    ketchersvc:
+        image: chemotion-build/ketchersvc:${VERSION}
+        init: true
+        restart: unless-stopped
+        environment:
+            - CONFIG_KETCHER_URL=http://eln:4000/ketcher/
+        depends_on:
+            eln:
+                condition: service_healthy
+        networks:
+            - chemotion
+
+volumes:
+    chemotion:
+        name: chemotion_app
+    chemotion_data:
+        name: chemotion_data
+    chemotion_db:
+        name: 1-10-1-3b68e2bb_chemotion_db
+        external: true
+    spectra:
+        name: chemotion_spectra
+
+networks:
+    chemotion:

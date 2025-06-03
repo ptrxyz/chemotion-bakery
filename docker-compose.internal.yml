@@ -1,0 +1,17 @@
+services:
+    eln:
+        image: ptrxyz/internal:eln-${VERSION}
+    worker:
+        image: ptrxyz/internal:eln-${VERSION}
+    dbupgrade:
+        image: pgautoupgrade/pgautoupgrade:16-bookworm
+    db:
+        image: ptrxyz/internal:db-${VERSION}
+    converter:
+        image: ptrxyz/internal:converter-${VERSION}
+    spectra:
+        image: ptrxyz/internal:spectra-${VERSION}
+    msconvert:
+        image: ptrxyz/internal:msconvert-${VERSION}
+    ketchersvc:
+        image: ptrxyz/internal:ketchersvc-${VERSION}

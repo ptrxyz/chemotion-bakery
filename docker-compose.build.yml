@@ -1,0 +1,62 @@
+x-common-build: &common-build
+    args:
+        CONVERTER_BUILD_TAG: ${CONVERTER_BUILD_TAG}
+        SPECTRA_BUILD_TAG: ${SPECTRA_BUILD_TAG}
+        KETCHERSVC_BUILD_TAG: ${KETCHERSVC_BUILD_TAG}
+        CHEMOTION_BUILD_TAG: ${CHEMOTION_BUILD_TAG}
+        VERSION: ${VERSION}
+
+services:
+    base:
+        build:
+            context: ./base
+            <<: *common-build
+        image: chemotion-build/base:${VERSION}
+
+    eln:
+        build:
+            context: ./eln
+            <<: *common-build
+        depends_on:
+            - base
+        image: chemotion-build/eln:${VERSION}
+
+    db:
+        build:
+            context: ./db
+            <<: *common-build
+        depends_on:
+            - base
+        image: chemotion-build/db:${VERSION}
+
+    converter:
+        build:
+            context: ./converter
+            <<: *common-build
+        depends_on:
+            - base
+        image: chemotion-build/converter:${VERSION}
+
+    spectra:
+        build:
+            context: ./spectra
+            <<: *common-build
+        depends_on:
+            - base
+        image: chemotion-build/spectra:${VERSION}
+
+    msconvert:
+        build:
+            context: ./msconvert
+            <<: *common-build
+        depends_on:
+            - base
+        image: chemotion-build/msconvert:${VERSION}
+
+    ketchersvc:
+        build:
+            context: ./ketchersvc
+            <<: *common-build
+        depends_on:
+            - base
+        image: chemotion-build/ketchersvc:${VERSION}
