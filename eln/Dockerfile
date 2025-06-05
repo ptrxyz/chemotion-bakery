@@ -126,8 +126,8 @@ RUN mkdir -p /chemotion/data && \
 
 # Add Ketcher
 RUN curl -sSL -o /tmp/ketcher.zip https://github.com/epam/ketcher/releases/download/v3.2.0/ketcher-standalone-3.2.0.zip && \
-    mkdir -p /chemotion/app/public/editors/ketchers2 && \
-    unzip -o /tmp/ketcher.zip -d /chemotion/app/public/editors/ketchers2 && \
+    mkdir -p /chemotion/app/public/editors/ketcher2 && \
+    unzip -o /tmp/ketcher.zip -d /chemotion/app/public/editors/ketcher2 && \
     rm /tmp/ketcher.zip
 
 
