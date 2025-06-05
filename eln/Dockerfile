@@ -1,6 +1,7 @@
 # GLOBALs that should be passed to this file
 ARG VERSION
 ARG CHEMOTION_BUILD_TAG
+ARG KETCHER2_VERSION
 
 # Derived values
 ARG CHEMOTION_RELEASE=${VERSION}
@@ -84,6 +85,7 @@ ARG CHEMOTION_BUILD_TAG
 ARG BUILD_REPO_CHEMOTION
 ARG CHEMOTION_RELEASE
 ARG VERSION
+ARG KETCHER2_VERSION
 
 WORKDIR /chemotion/app
 
@@ -125,8 +127,8 @@ RUN mkdir -p /chemotion/data && \
     mkdir -p /chemotion/data/public/images/thumbnail
 
 # Add Ketcher
-RUN curl -sSL -o /tmp/ketcher.zip https://github.com/epam/ketcher/releases/download/v3.2.0/ketcher-standalone-3.2.0.zip && \
-    mkdir -p /chemotion/app/public/editors/ketcher2 && \
+ADD https://github.com/epam/ketcher/releases/download/v${KETCHER2_VERSION}/ketcher-standalone-${KETCHER2_VERSION}.zip /tmp/ketcher.zip
+RUN mkdir -p /chemotion/app/public/editors/ketcher2 && \
     unzip -o /tmp/ketcher.zip -d /chemotion/app/public/editors/ketcher2 && \
     rm /tmp/ketcher.zip
 
