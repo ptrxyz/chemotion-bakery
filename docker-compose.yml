@@ -46,6 +46,7 @@ services:
             - chemotion
         environment:
             - PGAUTO_ONESHOT=yes
+            - PGAUTO_REINDEX=yes
 
     db:
         image: chemotion-build/db:${VERSION}
