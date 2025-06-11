@@ -2,6 +2,9 @@ set dotenv-load
 REPO := env("DOCKER_REPO_BASE", "ptrxyz")
 VERSION := env("VERSION")
 
+@default:
+    just --list
+
 # Requires sudo, yq
 setup:
     sudo systemctl stop docker
