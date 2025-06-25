@@ -46,6 +46,7 @@ services:
             - chemotion
         environment:
             - PGAUTO_ONESHOT=yes
+            - POSTGRES_PASSWORD=postgres
 
     db:
         image: chemotion-build/db:${VERSION}
