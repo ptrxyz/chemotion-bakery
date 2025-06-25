@@ -37,17 +37,11 @@ services:
             - chemotion
 
     dbupgrade:
-        image: pgautoupgrade/pgautoupgrade:16-bookworm
+        image: chemotion-build/dbupgrade:${VERSION}
         container_name: dbupgrade
         volumes:
             - chemotion_db:/var/lib/postgresql/data/
         restart: 'no'
-        networks:
-            - chemotion
-        environment:
-            - PGAUTO_ONESHOT=yes
-            - POSTGRES_PASSWORD=postgres
-            - PGAUTO_REINDEX=yes
 
     db:
         image: chemotion-build/db:${VERSION}
@@ -113,8 +107,7 @@ volumes:
     chemotion_data:
         name: chemotion_data
     chemotion_db:
-        name: 1-10-1-3b68e2bb_chemotion_db
-        external: true
+        name: chemotion_db
     spectra:
         name: chemotion_spectra
 
