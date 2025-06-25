@@ -46,6 +46,7 @@ services:
             - chemotion
         environment:
             - PGAUTO_ONESHOT=yes
+            - POSTGRES_PASSWORD=postgres
             - PGAUTO_REINDEX=yes
 
     db:
