@@ -37,6 +37,7 @@ _tag arg:
     docker tag chemotion-build/base:{{VERSION}} {{REPO}}/{{arg}}:base-{{VERSION}}
     docker tag chemotion-build/eln:{{VERSION}} {{REPO}}/{{arg}}:eln-{{VERSION}}
     docker tag chemotion-build/db:{{VERSION}} {{REPO}}/{{arg}}:db-{{VERSION}}
+    docker tag chemotion-build/dbupgrade:{{VERSION}} {{REPO}}/{{arg}}:dbupgrade-{{VERSION}}
     docker tag chemotion-build/converter:{{VERSION}} {{REPO}}/{{arg}}:converter-{{VERSION}}
     docker tag chemotion-build/spectra:{{VERSION}} {{REPO}}/{{arg}}:spectra-{{VERSION}}
     docker tag chemotion-build/msconvert:{{VERSION}} {{REPO}}/{{arg}}:msconvert-{{VERSION}}
@@ -46,6 +47,7 @@ _push arg: _inhibit && _release
     docker push {{REPO}}/{{arg}}:base-{{VERSION}}
     docker push {{REPO}}/{{arg}}:eln-{{VERSION}}
     docker push {{REPO}}/{{arg}}:db-{{VERSION}}
+    docker push {{REPO}}/{{arg}}:dbupgrade-{{VERSION}}
     docker push {{REPO}}/{{arg}}:converter-{{VERSION}}
     docker push {{REPO}}/{{arg}}:spectra-{{VERSION}}
     docker push {{REPO}}/{{arg}}:msconvert-{{VERSION}}

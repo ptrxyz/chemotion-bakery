@@ -30,6 +30,11 @@ services:
             - base
         image: chemotion-build/db:${VERSION}
 
+    dbupgrade:
+        build:
+            context: ./dbupgrade
+        image: chemotion-build/dbupgrade:${VERSION}
+
     converter:
         build:
             context: ./converter
