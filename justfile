@@ -26,8 +26,8 @@ _inhibit:
 _release:
     kill $(pgrep --env __BUILD=1)
 
-build: _inhibit && _release
-    time docker compose -f docker-compose.build.yml build
+build *args: _inhibit && _release
+    time docker compose -f docker-compose.build.yml build {{args}}
 
 reset:
     docker compose -f docker-compose.yml down --remove-orphans
@@ -66,3 +66,30 @@ push-chemotion: (_push "chemotion")
 publish-chemotion: (_publish "chemotion")
 
 publish: publish-chemotion
+
+
+test-fresh:
+    docker compose -f docker-compose.yml -f docker-compose.internal.yml -f docker-compose.testing.yml down --remove-orphans -v
+    docker volume rm -f pg13
+    docker volume create pg13
+
+    docker compose -f docker-compose.yml -f docker-compose.internal.yml -f docker-compose.testing.yml up dbupgrade db &
+    sleep 10
+    docker compose -f docker-compose.yml -f docker-compose.internal.yml -f docker-compose.testing.yml down
+    docker compose -f docker-compose.yml -f docker-compose.internal.yml -f docker-compose.testing.yml up dbupgrade db &
+    sleep 10
+    docker compose -f docker-compose.yml -f docker-compose.internal.yml -f docker-compose.testing.yml down --remove-orphans -v
+
+test-pg13-upgrade:
+    docker compose -f docker-compose.yml -f docker-compose.internal.yml -f docker-compose.testing.yml down --remove-orphans -v
+    docker volume rm -f pg13
+    docker volume create pg13
+
+    docker run --rm \
+        -e POSTGRES_PASSWORD=postgres \
+        -v pg13:/var/lib/postgresql/data \
+        -u postgres \
+        postgres:13 \
+        bash -c "initdb -D /var/lib/postgresql/data && pg_ctl -D /var/lib/postgresql/data -w start && createdb -U postgres chemotion && pg_ctl -D /var/lib/postgresql/data -m fast stop"
+
+    docker compose -f docker-compose.yml -f docker-compose.internal.yml -f docker-compose.testing.yml up dbupgrade

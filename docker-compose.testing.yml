@@ -1,0 +1,4 @@
+volumes:
+    chemotion_db:
+        name: pg13
+        external: true

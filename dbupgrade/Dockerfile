@@ -5,4 +5,7 @@ ENV PGAUTO_ONESHOT=yes \
     POSTGRES_PASSWORD=postgres \
     PGAUTO_REINDEX=yes
 
-ENTRYPOINT [ "/usr/local/bin/docker-entrypoint-noop.sh" ]
+WORKDIR /var/lib/postgresql
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint-noop.sh"]
+HEALTHCHECK CMD /usr/local/bin/pgautoupgrade-healthcheck.sh
+CMD ["postgres"]
