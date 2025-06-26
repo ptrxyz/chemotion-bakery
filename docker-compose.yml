@@ -38,7 +38,6 @@ services:
 
     dbupgrade:
         image: chemotion-build/dbupgrade:${VERSION}
-        container_name: dbupgrade
         volumes:
             - chemotion_db:/var/lib/postgresql/data/
         restart: 'no'
@@ -107,7 +106,9 @@ volumes:
     chemotion_data:
         name: chemotion_data
     chemotion_db:
-        name: chemotion_db
+        name: pg13
+        external: true
+
     spectra:
         name: chemotion_spectra
 
