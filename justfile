@@ -24,7 +24,7 @@ _inhibit:
     export __BUILD=1 && systemd-inhibit --what="shutdown:sleep:idle" --why="Pushing images to registry" sleep infinity & disown
 
 _release:
-    kill $(pgrep --env __BUILD=1)
+    kill $(pgrep --env __BUILD=1) || true
 
 build *args: _inhibit && _release
     time docker compose -f docker-compose.build.yml build {{args}}
