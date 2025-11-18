@@ -1,6 +1,10 @@
 ARG VERSION
 ARG SPECTRA_BUILD_TAG
 
+FROM scratch as cache
+ADD https://github.com/ComPlat/chem-spectra-app.git#${SPECTRA_BUILD_TAG} /raw
+
+
 # Stage 1: Build and install the ChemSpectra app
 FROM chemotion-build/base:${VERSION} AS spectra
 ARG SPECTRA_BUILD_TAG
@@ -18,30 +22,27 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,id=apt-cache \
         libxext-dev \
         pkg-config \
         libfreetype6-dev `# for matplotlib` \
-        libglib2.0-0 `# for pyOpenMS`
+        libglib2.0-0 `# for pyOpenMS` \
+        python3 python3-pip python3-venv
 
 COPY --chmod=755 ./additives/spectra_config.py /app/instance/config.py
 COPY --chmod=755 ./additives/fake-docker.py    /bin/docker
 
-# Fetch dependencies and source code
-ADD https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh /tmp/conda.sh
-ADD https://github.com/ComPlat/chem-spectra-app.git#${SPECTRA_BUILD_TAG} /app
-
 WORKDIR /app
+ENV PIP_CACHE_DIR=/var/cache/pip \
+    PIP_ROOT_USER_ACTION=ignore \
+    PATH="/app/venv/bin:$PATH"
 
-# Install Conda and environment
-RUN bash /tmp/conda.sh -p /anaconda3 -b && \
-    echo "PATH=/anaconda3/condabin:$PATH" >> ~/.profile && \
-    /anaconda3/condabin/conda update -y -n base -c defaults conda && \
-    /anaconda3/condabin/conda env create -f environment.yml
+COPY --from=cache /raw/pyproject.toml /app/
+RUN --mount=type=cache,target=/var/cache/pip,sharing=locked,id=pip-cache \
+    python3 -m venv /app/venv && pip install .
 
-# Switch to conda shell
-SHELL ["/anaconda3/condabin/conda", "run", "--no-capture-output", "-n", "python-v38", "/bin/bash", "-c"]
+COPY --from=cache /raw/chem_spectra /app/chem_spectra
+COPY --from=cache /raw/server.py /app/server.py
 
 # Finalize app setup
 RUN mkdir -p /shared /app/instance && \
-    ln -s /shared /app/chem_spectra/tmp && \
-    pip install --no-cache-dir -r requirements.txt
+    ln -s /shared /app/chem_spectra/tmp
 
 # Stage 2: Final container
 FROM spectra AS app
@@ -57,7 +58,7 @@ ENV FLASK_ENV=production \
 EXPOSE 4000
 WORKDIR /app
 
-ENTRYPOINT ["/tini", "--", "/anaconda3/condabin/conda", "run", "--no-capture-output", "-n", "python-v38"]
+ENTRYPOINT ["/tini", "--"]
 CMD ["gunicorn", "--timeout", "600", "-w", "4", "-b", "0.0.0.0:4000", "server:app"]
 
 HEALTHCHECK --interval=5s --timeout=3s --start-period=30s --retries=3 \

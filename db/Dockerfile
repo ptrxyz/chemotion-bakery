@@ -97,6 +97,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,id=apt-cache \
         libfreetype6 \
         zlib1g
 
+COPY --chown=root:root --chmod=755 assert-db.sh /usr/local/bin/assert-db.sh
 
 # # Test RDKit extension
 # RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,id=apt-cache \

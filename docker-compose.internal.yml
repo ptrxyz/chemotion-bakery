@@ -4,7 +4,7 @@ services:
     worker:
         image: ptrxyz/internal:eln-${VERSION}
     dbupgrade:
-        image: pgautoupgrade/pgautoupgrade:16-bookworm
+        image: ptrxyz/internal:dbupgrade-${VERSION}
     db:
         image: ptrxyz/internal:db-${VERSION}
     converter:
