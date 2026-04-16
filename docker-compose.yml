@@ -92,8 +92,8 @@ services:
         image: chemotion-build/ketchersvc:${VERSION}
         init: true
         restart: unless-stopped
-        environment:
-            - CONFIG_KETCHER_URL=http://eln:4000/ketcher/
+        # environment:
+        # - CONFIG_KETCHER_URL=http://eln:4000/ketcher/
         depends_on:
             eln:
                 condition: service_healthy
@@ -102,12 +102,11 @@ services:
 
 volumes:
     chemotion:
-        name: chemotion_app
+        name: ${COMPOSE_PROJECT_NAME}_chemotion_app
     chemotion_data:
-        name: chemotion_data
+        name: ${COMPOSE_PROJECT_NAME}_chemotion_data
     chemotion_db:
-        name: pg13
-        external: true
+        name: ${COMPOSE_PROJECT_NAME}_chemotion_db
 
     spectra:
         name: chemotion_spectra

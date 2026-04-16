@@ -67,6 +67,12 @@ publish-chemotion: (_publish "chemotion")
 
 publish: publish-chemotion
 
+test-internal:
+    COMPOSE_PROJECT_NAME=fresh docker compose down --remove-orphans -v
+    COMPOSE_PROJECT_NAME=fresh docker volume rm -f ${COMPOSE_PROJECT_NAME}_chemotion_db
+    COMPOSE_PROJECT_NAME=fresh docker volume rm -f ${COMPOSE_PROJECT_NAME}_chemotion_app
+    COMPOSE_PROJECT_NAME=fresh docker volume rm -f ${COMPOSE_PROJECT_NAME}_chemotion_data
+    COMPOSE_PROJECT_NAME=fresh docker compose -f docker-compose.yml -f docker-compose.internal.yml up
 
 test-fresh:
     docker compose -f docker-compose.yml -f docker-compose.internal.yml -f docker-compose.testing.yml down --remove-orphans -v

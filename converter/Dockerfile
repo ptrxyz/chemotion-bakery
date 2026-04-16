@@ -27,13 +27,12 @@ WORKDIR /srv/chemotion
 ADD https://github.com/ComPlat/chemotion-converter-app.git#${CONVERTER_BUILD_TAG} .
 
 RUN python3 -m venv env && \
-    env/bin/pip install --no-cache-dir --upgrade pip setuptools wheel pybind11 && \
-    env/bin/pip install --no-cache-dir \
-        --config-settings="cmake.args=-DFETCH_ZLIB_NG=ON" \
-        -r requirements/common.txt && \
-    if [ -f .env.prod ]; then mv .env.prod .env; fi && \
-    mkdir -p /var/log/chemotion-converter && \
-    chmod a+wrx /var/log/chemotion-converter
+    . env/bin/activate && \
+    pip install --no-cache-dir --upgrade pip setuptools wheel pybind11 && \
+    pip install --no-cache-dir --config-settings="cmake.args=-DFETCH_ZLIB_NG=ON" .[prod] && \
+     if [ -f .env.prod ]; then mv .env.prod .env; fi && \
+     mkdir -p /var/log/chemotion-converter && \
+     chmod a+wrx /var/log/chemotion-converter
 
 COPY --chmod=755 pass /bin/genpass
 RUN /bin/genpass chemotion chemotion > htpasswd

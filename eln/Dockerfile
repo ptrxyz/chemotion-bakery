@@ -8,7 +8,7 @@ ARG CHEMOTION_RELEASE=${VERSION}
 
 # Private variables, not passed in from outside, but helpful for this file
 ARG RUBY_VERSION=2.7.8
-ARG NODE_VERSION=22.15.1
+ARG NODE_VERSION=22.21.1
 ARG BUNDLER_VERSION=2.4.22
 ARG ASDF_VERSION=v0.17.0
 ARG PANDOC_VERSION=3.7.0.1
@@ -127,10 +127,12 @@ RUN mkdir -p /chemotion/data && \
     mkdir -p /chemotion/data/public/images/thumbnail
 
 # Add Ketcher
-ADD https://github.com/epam/ketcher/releases/download/v${KETCHER2_VERSION}/ketcher-standalone-${KETCHER2_VERSION}.zip /tmp/ketcher.zip
-RUN mkdir -p /chemotion/app/public/editors/ketcher2 && \
-    unzip -o /tmp/ketcher.zip -d /chemotion/app/public/editors/ketcher2 && \
-    rm /tmp/ketcher.zip
+# ADD https://github.com/epam/ketcher/releases/download/v${KETCHER2_VERSION}/ketcher-standalone-${KETCHER2_VERSION}.zip /tmp/ketcher.zip
+# RUN mkdir -p /chemotion/app/public/editors/ketcher2 && \
+#     unzip -o /tmp/ketcher.zip -d /chemotion/app/public/editors/ketcher2 && \
+#     rm /tmp/ketcher.zip
+
+ADD https://github.com/haditariq/ketcher-build-holder.git#${KETCHER2_VERSION} /chemotion/app/public/editors/ketcher/standalone
 
 
 # ------------------------------------------------------------------------------
@@ -253,14 +255,9 @@ RUN MAKEFLAGS="-j$(nproc)" && export MAKEFLAGS && \
     bundle install --jobs="$(nproc)" --retry=3
 
 RUN export SECRET_KEY_BASE="build" && \
-    KETCHER_PATH=$(bundle info --path ketcherails) && \
-    UIFILE_PATH="${KETCHER_PATH}/app/assets/javascripts/ketcherails/ui/ui.js.erb" && \
     rm /chemotion/app/config/scifinder_n.yml && \
-    cp "${UIFILE_PATH}" /tmp/ui.js.bak && \
-    sed -i 's/Ketcherails::TemplateCategory.with_approved_templates.pluck(:id)/[]/g' "${UIFILE_PATH}" && \
     bundle exec rake DISABLE_DATABASE_ENVIRONMENT_CHECK=1 DATABASE_URL=nulldb://user:pass@127.0.0.1/dbname shakapacker:compile 2>&1 | grep -v ^warning && \
     bundle exec rake DISABLE_DATABASE_ENVIRONMENT_CHECK=1 DATABASE_URL=nulldb://user:pass@127.0.0.1/dbname assets:precompile 2>&1 | grep -v ^warning && \
-    mv /tmp/ui.js.bak "${UIFILE_PATH}" && \
     rm -rf /tmp/* /var/tmp/* && \
     git init . && \
     git config user.name "Chemotion ELN Builder" && \

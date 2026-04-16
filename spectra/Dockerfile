@@ -35,7 +35,8 @@ ENV PIP_CACHE_DIR=/var/cache/pip \
 
 COPY --from=cache /raw/pyproject.toml /app/
 RUN --mount=type=cache,target=/var/cache/pip,sharing=locked,id=pip-cache \
-    python3 -m venv /app/venv && pip install .
+    python3 -m venv /app/venv && \
+    pip install --no-cache-dir  --upgrade pip && pip install --no-cache-dir .
 
 COPY --from=cache /raw/chem_spectra /app/chem_spectra
 COPY --from=cache /raw/server.py /app/server.py
