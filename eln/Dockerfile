@@ -255,6 +255,7 @@ RUN MAKEFLAGS="-j$(nproc)" && export MAKEFLAGS && \
     bundle install --jobs="$(nproc)" --retry=3
 
 RUN export SECRET_KEY_BASE="build" && \
+    export OTP_SECRET_KEY="build" && \
     rm /chemotion/app/config/scifinder_n.yml && \
     bundle exec rake DISABLE_DATABASE_ENVIRONMENT_CHECK=1 DATABASE_URL=nulldb://user:pass@127.0.0.1/dbname shakapacker:compile 2>&1 | grep -v ^warning && \
     bundle exec rake DISABLE_DATABASE_ENVIRONMENT_CHECK=1 DATABASE_URL=nulldb://user:pass@127.0.0.1/dbname assets:precompile 2>&1 | grep -v ^warning && \
