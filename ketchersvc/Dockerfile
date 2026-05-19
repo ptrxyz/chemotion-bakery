@@ -2,53 +2,37 @@ ARG VERSION
 ARG KETCHERSVC_BUILD_TAG
 
 # ------------------------------------------------------------------------------
-
-FROM oven/bun:latest AS ketcher-base
+# Build stage
+FROM oven/bun:latest AS build
 ARG KETCHERSVC_BUILD_TAG
 ARG VERSION
 
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked,id=apt-cache \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked,id=apt-lib \
-    apt-get update && \
-    apt-get install -y --no-install-recommends --fix-missing \
-        git \
-        ca-certificates fonts-liberation \
-        libnss3 \
-        libatk-bridge2.0-0 \
-        libatk1.0-0 \
-        libcups2 \
-        libdrm2 \
-        libxkbcommon0 \
-        libxcomposite1 \
-        libxdamage1 \
-        libxfixes3 \
-        libxrandr2 \
-        libgbm1 \
-        libasound2 \
-        libpangocairo-1.0-0 \
-        libpango-1.0-0 \
-        libcairo2 \
-        libatspi2.0-0 \
-        libgtk-3-0 \
-        libxshmfence1 \
-        fonts-unifont
-
-# Use ADD for GitHub tag archive (keeping your preference)
-ADD --chown=1000:1000 https://github.com/ptrxyz/chemotion-ketchersvc.git#${KETCHERSVC_BUILD_TAG} /app
-
-USER bun
 WORKDIR /app
 
-# Set build-related environment variables only for the build process
-ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1 \
-    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 \
-    PLAYWRIGHT_BROWSERS_PATH=/app/.browser-cache
+ADD --chown=1000:1000 https://github.com/ptrxyz/chemotion-ketchersvc.git#${KETCHERSVC_BUILD_TAG} /app
 
-RUN bun install && \
-    bunx playwright install chromium
+RUN export ELECTRON_SKIP_BINARY_DOWNLOAD=1; \
+    export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1; \
+    bun install --frozen-lockfile
+
+RUN bun run build
+
 
 # ------------------------------------------------------------------------------
+# Finalize the image
+FROM oven/bun:latest
 
+WORKDIR /app
+ENV NODE_ENV=production
+
+COPY --from=build /app/package.json /app/bun.lockb /app/
+RUN export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1; \
+    bun install --frozen-lockfile --production
+
+RUN bunx playwright install --with-deps chromium
+COPY --from=build /app/dist /app
+
+CMD ["bun", "index.js"]
 
 EXPOSE 4000
 
@@ -61,5 +45,3 @@ LABEL \
     org.opencontainers.image.description="Image for Chemotion KetcherSVC" \
     org.opencontainers.image.version="${VERSION}" \
     chemotion.internal.service.id="ketchersvc"
-
-CMD ["bun", "src/index.ts"]
