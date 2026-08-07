@@ -31,6 +31,22 @@ elif [[ "${CONFIG_ROLE}" == "worker" ]]; then
     (cd /embed/ && make all-worker)
     [[ -n ${DROP} ]] && export HOME=/chemotion/app
     exec ${DROP} bundle exec bin/delayed_job ${DELAYED_JOB_ARGS} run
+elif [[ "${CONFIG_ROLE}" == "combine" ]]; then
+    # Wait a bit. give the ELN some time to delete it's lock in case it's still present
+    sleep 3
+    (cd /embed/ && make all-eln)
+    [[ -n ${DROP} ]] && export HOME=/chemotion/app
+    echo "Initializing delayed job..."
+    nohup ${DROP} bundle exec bin/delayed_job start
+    # if environement variable DO_NOT_SEED is set to true, do not run the seeds
+    if [[ -n ${DO_NOT_SEED} && ${DO_NOT_SEED} == "true" ]]; then
+        echo "Skipping seeds as DO_NOT_SEED is set to true."
+    else
+        echo "Running initial seeding in background..."
+        nohup ${DROP} /initialize.sh &> /chemotion/app/log/initialize.p2d.log &
+    fi
+    echo "Starting ELN server..."
+    exec ${DROP} bundle exec rails s -b 0.0.0.0 -p4000 --pid "${PIDFILE}"
 else
-    echo "ERROR: Please specify CONFIG_ROLE ('eln'/'worker')."
+    echo "ERROR: Please specify CONFIG_ROLE ('eln'/'worker'/'combine')."
 fi
